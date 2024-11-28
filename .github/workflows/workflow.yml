@@ -34,9 +34,10 @@ jobs:
 
     - name: 'Push Packages'
       run: |
-        dotnet nuget push ${{ env.PACKAGE_OUTPUT_DIR }}/*.nupkg
-        nuget setapikey ${{ secrets.NEXUS_API_KEY }} --source ${{ vars.NEXUS_URL_RELEASE }}
+        dotnet nuget push ${{ env.PACKAGE_OUTPUT_DIR }}/*.nupkg --source ${{ vars.NEXUS_URL_RELEASE }} --api-key ${{ secrets.NEXUS_API_KEY }} 
 
       env:
         NEXUS_URL_RELEASE: ${{ vars.NEXUS_URL_RELEASE }} 
         NEXUS_API_KEY: ${{ secrets.NEXUS_API_KEY }}
+        NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
+        NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
