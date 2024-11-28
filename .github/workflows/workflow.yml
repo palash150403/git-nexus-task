@@ -6,6 +6,11 @@ on:
       - develop
       - release
   
+env:
+  PROJECT_PATH: 'git-nexus-task/helloworld.csproj'
+  PACKAGE_OUTPUT_DIR: './bin/Release'
+
+
 jobs:
   build:
 
@@ -17,8 +22,18 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
-    - name: Restore dependencies
-      run: dotnet restore
-    - name: Build
-      run: dotnet build --no-restore
+
+    - name: 'Restore packages'
+      run: dotnet restore ${{ env.PROJECT_PATH }}
+
+    - name: 'Build packages'
+      run: dotnet build ${{ env.PROJECT_PATH }} --no-restore --configuration Release
     
+    - name: 'Pack packages'
+      run: dotnet pack ${{ env.PROJECT_PATH }} --no-restore --no-build --configuration Release --include-symbols --output ${{ env.PACKAGE_OUTPUT_DIR }}
+
+    - name: 'Push Packages'
+      run: dotnet nuget push ${{ env.PACKAGE_OUTPUT_DIR }}/*.nupkg --api-key ${{ secrets.NEXUS_API_KEY }} --source ${{ secrets.NEXUS_URL_RELEASE }}
+      env:
+        NEXUS_URL_RELEASE: ${{ secrets.NEXUS_URL_RELEASE }} 
+        NEXUS_API_KEY: ${{ secrets.NEXUS_API_KEY }}
