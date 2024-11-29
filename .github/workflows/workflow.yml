@@ -99,7 +99,7 @@ jobs:
 
     - name: Push to Nexus Repository
       env:
-        NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
+        NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }} 
         NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
         NEXUS_API_KEY: ${{ secrets.NEXUS_API_KEY }}
         NEXUS_URL_DEVELOP: ${{ vars.NEXUS_URL_DEVELOP }}
