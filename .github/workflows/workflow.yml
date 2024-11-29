@@ -18,6 +18,22 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+
+    - name: 'Check branch and tag logic'
+      run: |
+        echo "REF: ${{ github.ref }}"
+        echo "BRANCH: ${{ github.ref_name }}"
+        if [[ "${{ github.ref }}" =~ ^refs/tags/ ]]; then
+          if [[ "${{ github.ref_name }}" == "main" ]]; then
+            echo "Tag is on the main branch. Proceeding with pipeline."
+          else
+            echo "Error: Tag is on an unsupported branch (${BRANCH}). Failing the pipeline."
+            exit 1
+          fi
+        else
+          echo "Not a tag. Proceeding with pipeline."
+        fi
+        
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
