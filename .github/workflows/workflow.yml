@@ -11,7 +11,7 @@ on:
 env:
   PROJECT_PATH: '**/*.csproj'
   PACKAGE_OUTPUT_DIR: './bin/Release'
-  PACKAGE_ID: "helloworld"
+  PACKAGE_ID: ""
   PACKAGE_VERSION: ""
   ARTIFACT_PATH: ""
 
@@ -47,35 +47,35 @@ jobs:
           TAG_COMMIT=$(git rev-parse "${GITHUB_REF}")
 
           if [[ "$TAG_COMMIT" == "$MAIN_COMMIT" ]]; then
-            # export PACKAGE_ID="${FOLDER_NAME}-${TAG_NAME}"
+            export PACKAGE_ID="${FOLDER_NAME}-${TAG_NAME}"
             export PACKAGE_VERSION="${TAG_NAME}"
           else
             echo "Error: Tags must be created on the main."
             exit 1
           fi
         elif [[ "${GITHUB_REF}" == "refs/heads/develop" ]]; then
-          # export PACKAGE_ID="${FOLDER_NAME}"
+          export PACKAGE_ID="${FOLDER_NAME}"
           export PACKAGE_VERSION="1.0.0-${GITHUB_RUN_ID}"
         elif [[ "${GITHUB_REF}" == "refs/heads/release" ]]; then
           COMMIT_ID=$(echo "${GITHUB_SHA}" | cut -c1-6)
-          # export PACKAGE_ID="${FOLDER_NAME}-1.0.0-release-${COMMIT_ID}"
+          export PACKAGE_ID="${FOLDER_NAME}-1.0.0-release-${COMMIT_ID}"
           export PACKAGE_VERSION="1.0.0-release-${COMMIT_ID}"
         else
           echo "Error: Unsupported branch/tag for setting package name/version."
           exit 1
         fi
 
-        # echo "PACKAGE_ID=${PACKAGE_ID}" >> $GITHUB_ENV
+        echo "PACKAGE_ID=${PACKAGE_ID}" >> $GITHUB_ENV
         echo "PACKAGE_VERSION=${PACKAGE_VERSION}" >> $GITHUB_ENV
-        # echo "PACKAGE_ID: ${{ env.PACKAGE_ID }}"
+        echo "PACKAGE_ID: $PACKAGE_ID"
         echo "PACKAGE_VERSION: $PACKAGE_VERSION"
 
     - name: Pack packages
       run: |
         dotnet pack --no-restore --no-build --configuration Release --output ${{ env.PACKAGE_OUTPUT_DIR }} \
-          /p:CustomPackageId=${{ env.PACKAGE_ID }} \
+          /p:CustomPackageId=$PACKAGE_ID \
           /p:PackageVersion=$PACKAGE_VERSION
-        ARTIFACT_PATH="${{ env.PACKAGE_OUTPUT_DIR }}/${{ env.PACKAGE_ID }}.${PACKAGE_VERSION}.nupkg"
+        ARTIFACT_PATH="${{ env.PACKAGE_OUTPUT_DIR }}/${PACKAGE_ID}.${PACKAGE_VERSION}.nupkg"
         echo "ARTIFACT_PATH=${ARTIFACT_PATH}" >> $GITHUB_ENV
 
     - name: Upload Package as Artifact
@@ -84,7 +84,7 @@ jobs:
         name: nuget-package
         path: ${{ env.ARTIFACT_PATH }}
 
-  PushNuGet_Package:
+  push_to_nexus:
     runs-on: ubuntu-latest
     needs: build
     steps:
@@ -92,7 +92,10 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         name: nuget-package
-        path: ${{ env.PACKAGE_OUTPUT_DIR }}
+        path: ./bin/Release
+
+    - name: List files in Release directory
+      run: ls -al ./bin/Release
 
     - name: Push to Nexus Repository
       env:
@@ -116,5 +119,5 @@ jobs:
           exit 1
         fi
         echo "Pushing to Nexus repository: $NEXUS_SOURCE"
-        dotnet nuget push ${{ env.PACKAGE_OUTPUT_DIR }}/*.nupkg --source $NEXUS_SOURCE --api-key ${{ secrets.NEXUS_API_KEY }}
+        dotnet nuget push ./bin/Release/*.nupkg --source $NEXUS_SOURCE --api-key $NEXUS_API_KEY
  
