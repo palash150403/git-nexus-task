@@ -5,6 +5,8 @@ on:
     branches: 
       - develop
       - release
+    tags:
+      - '*'
   
 env:
   PROJECT_PATH: 'git-nexus-task/helloworld.csproj'
@@ -33,7 +35,7 @@ jobs:
         else
           echo "Not a tag. Proceeding with pipeline."
         fi
-        
+
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
