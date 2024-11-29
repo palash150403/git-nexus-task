@@ -29,7 +29,7 @@ jobs:
         dotnet-version: 8.0.x
 
     - name: Restore packages
-      run: dotnet restore ${{ env.PROJECT_PATH }}
+      run: dotnet restore 
 
     - name: Build project
       run: dotnet build --no-restore --configuration Release
