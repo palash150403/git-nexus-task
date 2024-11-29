@@ -21,19 +21,29 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: 'Check branch and tag logic'
+    - name: Validate Tag and Branch
+      id: validate_tag
       run: |
-        echo "REF: ${{ github.ref }}"
-        echo "BRANCH: ${{ github.ref_name }}"
-        if [[ "${{ github.ref }}" =~ ^refs/tags/ ]]; then
-          if [[ "${{ github.ref_name }}" == "main" ]]; then
-            echo "Tag is on the main branch. Proceeding with pipeline."
+        echo "Checking GITHUB_REF: $GITHUB_REF"
+        if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+          TAG_COMMIT=$(git rev-parse "${GITHUB_REF}")
+          git fetch origin
+          
+          if [[ "${GITHUB_REF_NAME}" == "main" ]]; then
+            MAIN_COMMIT=$(git rev-parse origin/main)
+            if [[ "$TAG_COMMIT" != "$MAIN_COMMIT" ]]; then
+              echo "Error: Tags on 'main' branch must point to the latest commit."
+              exit 1
+            fi
+          elif [[ "${GITHUB_REF_NAME}" == "develop" || "${GITHUB_REF_NAME}" == "release" ]]; then
+            echo "Error: Tags cannot be created on 'develop' or 'release' branches."
+            exit 1
           else
-            echo "Error: Tag is on an unsupported branch (${BRANCH}). Failing the pipeline."
+            echo "Error: Invalid branch for tagging."
             exit 1
           fi
         else
-          echo "Not a tag. Proceeding with pipeline."
+          echo "No tag detected, proceeding with pipeline."
         fi
 
     - name: Setup .NET
