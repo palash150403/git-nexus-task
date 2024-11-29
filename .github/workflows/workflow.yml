@@ -25,25 +25,24 @@ jobs:
       id: validate_tag
       run: |
         echo "Checking GITHUB_REF: $GITHUB_REF"
+
         if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
-          TAG_COMMIT=$(git rev-parse "${GITHUB_REF}")
-          git fetch origin
-          
-          if [[ "${GITHUB_REF_NAME}" == "main" ]]; then
-            MAIN_COMMIT=$(git rev-parse origin/main)
-            if [[ "$TAG_COMMIT" != "$MAIN_COMMIT" ]]; then
-              echo "Error: Tags on 'main' branch must point to the latest commit."
-              exit 1
-            fi
-          elif [[ "${GITHUB_REF_NAME}" == "develop" || "${GITHUB_REF_NAME}" == "release" ]]; then
-            echo "Error: Tags cannot be created on 'develop' or 'release' branches."
-            exit 1
-          else
-            echo "Error: Invalid branch for tagging."
+          TAG_NAME="${GITHUB_REF#refs/tags/}"
+          echo "Tag detected: $TAG_NAME"
+
+          if [[ "${GITHUB_REF_NAME}" == "develop" || "${GITHUB_REF_NAME}" == "release" ]]; then
+            echo "Error: Tags are not allowed on 'develop' or 'release' branches."
             exit 1
           fi
+
+          if [[ "${GITHUB_REF_NAME}" != "main" ]]; then
+            echo "Error: Tags must be on the 'main' branch to proceed."
+            exit 1
+          fi
+
+          echo "Tag $TAG_NAME on 'main' branch is valid. Proceeding."
         else
-          echo "No tag detected, proceeding with pipeline."
+          echo "No tag detected or commit is not from 'develop', 'release', or 'main'. Proceeding."
         fi
 
     - name: Setup .NET
