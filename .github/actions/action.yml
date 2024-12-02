@@ -39,10 +39,10 @@ runs:
 
     - name: Install SonarQube Cloud scanner
       if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
-      shell: powershell
+      shell: bash
       run: |
-        New-Item -Path .\.sonar\scanner -ItemType Directory
-        dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
+        mkdir -p ./.sonar/scanner
+        dotnet tool update dotnet-sonarscanner --tool-path ./.sonar/scanner
 
     - name: Build and analyze
       env:
@@ -50,6 +50,6 @@ runs:
         SONAR_TOKEN: ${{ inputs.sonar_token }}   
       shell: powershell
       run: |
-        .\.sonar\scanner\dotnet-sonarscanner begin /k:"palash150403_git-nexus-task" /o:"palash150403" /d:sonar.token="${{ inputs.sonar_token }}" /d:sonar.host.url="https://sonarcloud.io"
+        .\.sonar\scanner\dotnet-sonarscanner begin /k:"palash150403_git-nexus-task" /o:"palash150403" /d:sonar.login="${{ inputs.sonar_token }}" /d:sonar.host.url="https://sonarcloud.io"
         dotnet build
-        .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.token="${{ inputs.sonar_token }}"
+        .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ inputs.sonar_token }}"
