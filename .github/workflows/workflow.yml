@@ -84,9 +84,23 @@ jobs:
         name: nuget-package
         path: ${{ env.ARTIFACT_PATH }}
 
-  push_to_nexus:
+  sonarcloud:
     runs-on: ubuntu-latest
     needs: build
+    steps:
+    - name: SonaCloud Scan
+      uses: sonarsource/sonarcloud-github-action@v3.1.0   
+      env:
+        GIT_TOKEN: ${{ secrets.GIT_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      with:
+        args: >
+            - Dsonar.organization=palash150403
+            - Dsonar.projectKey=SonarCloudAnalysis
+
+  push_to_nexus:
+    runs-on: ubuntu-latest
+    needs: sonarcloud
     steps:
     - name: Download Package Artifact
       uses: actions/download-artifact@v3
