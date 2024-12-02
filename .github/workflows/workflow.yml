@@ -90,7 +90,7 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
-      
+
     - name: SonaCloud Scan
       uses: sonarsource/sonarcloud-github-action@master 
 
@@ -99,9 +99,8 @@ jobs:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       with:
         args: |
-          -Dsonar.projectKey=palash150403
+          -Dsonar.projectKey=palash150403_git-nexus-task
           -Dsonar.organization=palash150403
-          -Dsonar.branch.name=${{ github.ref_name }}
 
 
   push_to_nexus:
