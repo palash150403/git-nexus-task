@@ -97,7 +97,7 @@ jobs:
       with:
         args: |
           -Dsonar.organization=palash150403
-          -Dsonar.projectKey=SonarCloudAnalysis
+          -Dsonar.projectKey=palash150403
 
 
   push_to_nexus:
