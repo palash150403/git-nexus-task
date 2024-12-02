@@ -88,6 +88,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+      
     - name: SonaCloud Scan
       uses: sonarsource/sonarcloud-github-action@master 
 
@@ -98,6 +101,7 @@ jobs:
         args: |
           -Dsonar.projectKey=palash150403
           -Dsonar.organization=palash150403
+          -Dsonar.branch.name=${{ github.ref_name }}
 
 
   push_to_nexus:
