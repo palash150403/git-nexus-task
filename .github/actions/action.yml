@@ -50,6 +50,6 @@ runs:
         SONAR_TOKEN: ${{ inputs.sonar_token }}   
       shell: bash
       run: |
-        ./.sonar/scanner/dotnet-sonarscanner begin /k:"palash150403_git-nexus-task" /o:"palash150403" /d:sonar.login="${{ inputs.sonar_token }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.scanner.skipJreProvisioning=true /d:sonar.analysis.mode=CI
+        ./.sonar/scanner/dotnet-sonarscanner begin /k:"palash150403_git-nexus-task" /o:"palash150403" /d:sonar.login="${{ inputs.sonar_token }}" /d:sonar.host.url="https://sonarcloud.io"  
         dotnet build
         ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.login="${{ inputs.sonar_token }}"
