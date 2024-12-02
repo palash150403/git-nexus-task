@@ -48,8 +48,8 @@ runs:
       env:
         GIT_TOKEN: ${{ inputs.github_token }}  
         SONAR_TOKEN: ${{ inputs.sonar_token }}   
-      shell: powershell
+      shell: bash
       run: |
-        .\.sonar\scanner\dotnet-sonarscanner begin /k:"palash150403_git-nexus-task" /o:"palash150403" /d:sonar.login="${{ inputs.sonar_token }}" /d:sonar.host.url="https://sonarcloud.io"
+        ./.sonar/scanner/dotnet-sonarscanner begin /k:"palash150403_git-nexus-task" /o:"palash150403" /d:sonar.login="${{ inputs.sonar_token }}" /d:sonar.host.url="https://sonarcloud.io"
         dotnet build
-        .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ inputs.sonar_token }}"
+        ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.login="${{ inputs.sonar_token }}"
