@@ -98,15 +98,6 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         sonar_token: ${{ secrets.SONAR_TOKEN }}
 
-      
-      # env:
-      #   GIT_TOKEN: 
-      #   SONAR_TOKEN: 
-      # with:
-      #   args: |
-      #     -Dsonar.projectKey=palash150403_git-nexus-task
-      #     -Dsonar.organization=palash150403
-
 
   push_to_nexus:
     runs-on: ubuntu-latest
