@@ -90,14 +90,15 @@ jobs:
     steps:
     - name: SonaCloud Scan
       uses: sonarsource/sonarcloud-github-action@master 
-        
+
       env:
         GIT_TOKEN: ${{ secrets.GIT_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       with:
-        args: >
-            - Dsonar.organization=palash150403
-            - Dsonar.projectKey=SonarCloudAnalysis
+        args: |
+          -Dsonar.organization=palash150403
+          -Dsonar.projectKey=SonarCloudAnalysis
+
 
   push_to_nexus:
     runs-on: ubuntu-latest
