@@ -102,9 +102,6 @@ jobs:
       id: sonarqube-quality-gate-check
       uses: sonarsource/sonarqube-quality-gate-action@master
       timeout-minutes: 5
-      with:
-        sonar_token: ${{ secrets.SONAR_TOKEN }}
-
   
     - name: "Example show SonarQube Quality Gate Status value"
       run: echo "The Quality Gate status is ${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}"
