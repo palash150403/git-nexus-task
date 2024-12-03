@@ -126,17 +126,17 @@ jobs:
     - name: "Example show SonarQube Quality Gate Status value"
       run: echo "The Quality Gate status is $QUALITY_GATE_STATUS"
 
-    - name: Manual Approval
-      uses: trstringer/manual-approval@v1
-      with:
-        secret: ${{ secrets.GITHUB_TOKEN }}
-        approvers: palash1504
-        minimum-approvals: 1
-        issue-title: "pushing to nexus"
-        issue-body: "Please approve or deny the pushing to nexus"
-        exclude-workflow-initiator-as-approver: false
-        additional-approved-words: ''
-        additional-denied-words: ''
+    # - name: Manual Approval
+    #   uses: trstringer/manual-approval@v1
+    #   with:
+    #     secret: 
+    #     approvers: palash1504
+    #     minimum-approvals: 1
+    #     issue-title: "pushing to nexus"
+    #     issue-body: "Please approve or deny the pushing to nexus"
+    #     exclude-workflow-initiator-as-approver: false
+    #     additional-approved-words: ''
+    #     additional-denied-words: ''
 
 
   push_to_nexus:
