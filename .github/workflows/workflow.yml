@@ -165,6 +165,6 @@ jobs:
         dotnet nuget push ./bin/Release/*.nupkg --source $NEXUS_SOURCE --api-key $NEXUS_API_KEY
 
     environment: 
-    name: Approval
+      name: Approval
     if: startsWith(github.ref, 'refs/tags/')
  
