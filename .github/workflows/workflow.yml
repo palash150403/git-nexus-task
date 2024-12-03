@@ -108,13 +108,19 @@ jobs:
        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         
   
+    - name: Assign Quality Gate Status to variable
+      run: |
+        QUALITY_GATE_STATUS="${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}"
+        echo "QUALITY_GATE_STATUS=${QUALITY_GATE_STATUS}" >> $GITHUB_ENV
+        echo "The Quality Gate status is $QUALITY_GATE_STATUS"
+ 
     - name: "Example show SonarQube Quality Gate Status value"
-      run: echo "The Quality Gate status is ${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}"
+      run: echo "The Quality Gate status is $QUALITY_GATE_STATUS"
 
 
   push_to_nexus:
     runs-on: ubuntu-latest
-    needs: sonarcloud
+    needs: sonarcloud    
     steps:
     - name: Download Package Artifact
       uses: actions/download-artifact@v3
