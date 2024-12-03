@@ -116,7 +116,7 @@ jobs:
 
     - name: Check if Quality Gate Passed
       run: |
-        if [[ "${QUALITY_GATE_STATUS}" != "OK" ]]; then
+        if [[ "${QUALITY_GATE_STATUS}" != "PASSED" ]]; then
           echo "Quality Gate failed with status: $QUALITY_GATE_STATUS"
           exit 1  
         else
