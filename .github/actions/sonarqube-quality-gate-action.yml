@@ -14,7 +14,7 @@ inputs:
   scanMetadataReportFile:
     description: Location of the scanner metadata report file
     required: false
-    default: .scannerwork/report-task.txt
+    default: .sonarqube/out/.sonar/report-task.txt
   pollingTimeoutSec:
     description: "The maximum time (in seconds) to poll for SonarQube's Quality Gate status. Default: 300."
     required: false
