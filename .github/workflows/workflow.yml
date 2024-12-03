@@ -113,6 +113,15 @@ jobs:
         QUALITY_GATE_STATUS="${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}"
         echo "QUALITY_GATE_STATUS=${QUALITY_GATE_STATUS}" >> $GITHUB_ENV
         echo "The Quality Gate status is $QUALITY_GATE_STATUS"
+
+    - name: Check if Quality Gate Passed
+      run: |
+        if [[ "${QUALITY_GATE_STATUS}" != "OK" ]]; then
+          echo "Quality Gate failed with status: $QUALITY_GATE_STATUS"
+          exit 1  
+        else
+          echo "Quality Gate passed with status: $QUALITY_GATE_STATUS"
+        fi
  
     - name: "Example show SonarQube Quality Gate Status value"
       run: echo "The Quality Gate status is $QUALITY_GATE_STATUS"
@@ -120,7 +129,7 @@ jobs:
 
   push_to_nexus:
     runs-on: ubuntu-latest
-    needs: sonarcloud    
+    needs: sonarcloud
     steps:
     - name: Download Package Artifact
       uses: actions/download-artifact@v3
