@@ -9,7 +9,7 @@ on:
       - '*'
 
 env:
-  PROJECT_PATH: 'git-nexus-task/helloworld.csproj'
+  PROJECT_PATH: '**/*.csproj'
   PACKAGE_OUTPUT_DIR: './bin/Release'
   PACKAGE_ID: ""
   PACKAGE_VERSION: ""
@@ -29,7 +29,7 @@ jobs:
         dotnet-version: 8.0.x
 
     - name: Restore packages
-      run: dotnet restore ${{ env.PROJECT_PATH }}
+      run: dotnet restore 
 
     - name: Build project
       run: dotnet build --no-restore --configuration Release
@@ -43,22 +43,22 @@ jobs:
         if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
           TAG_NAME="${GITHUB_REF#refs/tags/}"
           git fetch --unshallow || true
-          MAIN_COMMIT=$(git rev-parse origin/main || git rev-parse origin/main)
+          MAIN_COMMIT=$(git rev-parse origin/main)
           TAG_COMMIT=$(git rev-parse "${GITHUB_REF}")
 
           if [[ "$TAG_COMMIT" == "$MAIN_COMMIT" ]]; then
-            export PACKAGE_ID="nexus-git-${TAG_NAME}"
+            export PACKAGE_ID="${FOLDER_NAME}-${TAG_NAME}"
             export PACKAGE_VERSION="${TAG_NAME}"
           else
             echo "Error: Tags must be created on the main."
             exit 1
           fi
         elif [[ "${GITHUB_REF}" == "refs/heads/develop" ]]; then
-          export PACKAGE_ID="${FOLDER_NAME}.nexus-git"
+          export PACKAGE_ID="${FOLDER_NAME}"
           export PACKAGE_VERSION="1.0.0-${GITHUB_RUN_ID}"
         elif [[ "${GITHUB_REF}" == "refs/heads/release" ]]; then
           COMMIT_ID=$(echo "${GITHUB_SHA}" | cut -c1-6)
-          export PACKAGE_ID="nexus-git-1.0.0-release-${COMMIT_ID}"
+          export PACKAGE_ID="${FOLDER_NAME}-1.0.0-release-${COMMIT_ID}"
           export PACKAGE_VERSION="1.0.0-release-${COMMIT_ID}"
         else
           echo "Error: Unsupported branch/tag for setting package name/version."
@@ -84,9 +84,54 @@ jobs:
         name: nuget-package
         path: ${{ env.ARTIFACT_PATH }}
 
-  push_to_nexus:
+  sonarcloud:
     runs-on: ubuntu-latest
     needs: build
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: SonaCloud Scan
+      id: sonar_scan
+      uses: ./.github/actions/ 
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        sonar_token: ${{ secrets.SONAR_TOKEN }}
+
+    - name: SonarQube Quality Gate check
+      id: sonarqube-quality-gate-check
+      uses: sonarsource/sonarqube-quality-gate-action@master
+      with:
+        pollingTimeoutSec: 600
+        scanMetadataReportFile: .sonarqube/out/.sonar/report-task.txt
+      env:
+       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        
+  
+    - name: Assign Quality Gate Status to variable
+      run: |
+        QUALITY_GATE_STATUS="${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}"
+        echo "QUALITY_GATE_STATUS=${QUALITY_GATE_STATUS}" >> $GITHUB_ENV
+        echo "The Quality Gate status is $QUALITY_GATE_STATUS"
+
+    - name: Check if Quality Gate Passed
+      run: |
+        if [[ "${QUALITY_GATE_STATUS}" != "PASSED" ]]; then
+          echo "Quality Gate failed with status: $QUALITY_GATE_STATUS"
+          exit 1  
+        else
+          echo "Quality Gate passed with status: $QUALITY_GATE_STATUS"
+        fi
+ 
+    - name: "Example show SonarQube Quality Gate Status value"
+      run: echo "The Quality Gate status is $QUALITY_GATE_STATUS"
+
+  push_to_nexus:
+    runs-on: ubuntu-latest
+    needs: sonarcloud
+    environment: 
+      name: Approval
+    if: startsWith(github.ref, 'refs/tags/')
     steps:
     - name: Download Package Artifact
       uses: actions/download-artifact@v3
@@ -99,7 +144,7 @@ jobs:
 
     - name: Push to Nexus Repository
       env:
-        NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
+        NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }} 
         NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
         NEXUS_API_KEY: ${{ secrets.NEXUS_API_KEY }}
         NEXUS_URL_DEVELOP: ${{ vars.NEXUS_URL_DEVELOP }}
@@ -120,3 +165,4 @@ jobs:
         fi
         echo "Pushing to Nexus repository: $NEXUS_SOURCE"
         dotnet nuget push ./bin/Release/*.nupkg --source $NEXUS_SOURCE --api-key $NEXUS_API_KEY
+ 
