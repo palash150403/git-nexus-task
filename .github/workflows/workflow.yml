@@ -130,7 +130,7 @@ jobs:
       uses: trstringer/manual-approval@v1
       with:
         secret: ${{ secrets.GITHUB_TOKEN }}
-        approvers: palash150403
+        approvers: palash1504
         minimum-approvals: 1
         issue-title: "pushing to nexus"
         issue-body: "Please approve or deny the pushing to nexus"
@@ -142,6 +142,8 @@ jobs:
   push_to_nexus:
     runs-on: ubuntu-latest
     needs: sonarcloud
+    environment: 
+      name: Approval
     steps:
     - name: Download Package Artifact
       uses: actions/download-artifact@v3
