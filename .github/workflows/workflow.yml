@@ -136,7 +136,7 @@ jobs:
     #     issue-body: "Please approve or deny the pushing to nexus"
     #     exclude-workflow-initiator-as-approver: false
     #     additional-approved-words: ''
-    #     additional-denied-words: ''
+    #     additional-denied-words: '' 
 
 
   push_to_nexus:
