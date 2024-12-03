@@ -100,7 +100,7 @@ jobs:
 
     - name: SonarQube Quality Gate check
       id: sonarqube-quality-gate-check
-      uses: actions/sonarqube-quality-gate-action@master
+      uses: sonarsource/sonarqube-quality-gate-action@master
       timeout-minutes: 5
   
     - name: "Example show SonarQube Quality Gate Status value"
