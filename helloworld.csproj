@@ -11,19 +11,3 @@
 
 </Project>
 
-$ cat Program.cs 
-Console.WriteLine("Hello, World!");
-$
-$ # Publish the .NET application (you need the "dotnet6" package)
-$ dotnet publish -c Release -o git-nexus-task
-Microsoft (R) Build Engine version 17.0.1+b177f8fa7 for .NET
-Copyright (C) Microsoft Corporation. All rights reserved.
-
-  Determining projects to restore...
-  Restored /tmp/demo/HelloWorld.csproj (in 59 ms).
-  HelloWorld -> /tmp/demo/bin/Release/net8.0/HelloWorld.dll
-  HelloWorld -> /tmp/demo/bin/Release/net8.0/publish/
-$
-$ # Now you can run the app with "ubuntu/dotnet-runtime:8.0-24.04_stable"
-$ docker run --rm -v $PWD/git-nexus-task:/git-nexus-task ubuntu/dotnet-runtime:8.0-24.04_stable /git-nexus-task/HelloWorld.dll 
-Hello, World!
