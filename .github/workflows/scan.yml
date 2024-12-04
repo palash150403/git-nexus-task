@@ -52,13 +52,13 @@ jobs:
 
     - name: Build and analyze
       env:
-        GIT_TOKEN: ${{ inputs.github_token }}  
-        SONAR_TOKEN: ${{ inputs.sonar_token }}   
+        GIT_TOKEN: ${{ env.GITHUB_TOKEN }}  
+        SONAR_TOKEN: ${{ env.SONAR_TOKEN }} 
       shell: bash
       run: |
-        ./.sonar/scanner/dotnet-sonarscanner begin /k:"palash150403_git-nexus-task" /o:"palash150403" /d:sonar.login="${{ inputs.sonar_token }}" /d:sonar.host.url="https://sonarcloud.io"  
+        ./.sonar/scanner/dotnet-sonarscanner begin /k:"palash150403_git-nexus-task" /o:"palash150403" /d:sonar.login="${{ env.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io"  
         dotnet build
-        ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.login="${{ inputs.sonar_token }}"
+        ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.login="${{ env.SONAR_TOKEN }}"
 
     - name: SonarQube Quality Gate Check
       id: quality-gate-check
@@ -78,7 +78,7 @@ jobs:
         if [[ "${QUALITY_GATE_STATUS}" != "PASSED" ]]; then
           echo "Quality Gate failed with status: $QUALITY_GATE_STATUS"
           exit 1  
-        else
+        else:
           echo "Quality Gate passed with status: $QUALITY_GATE_STATUS"
         fi
 
