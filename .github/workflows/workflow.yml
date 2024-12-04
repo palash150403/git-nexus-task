@@ -36,6 +36,7 @@ jobs:
       shell: bash
       run: |
         echo "Checking GITHUB_REF: $GITHUB_REF"
+        git config --global --add safe.directory /__w/git-nexus-task/git-nexus-task
         FOLDER_NAME="helloworld"
 
         if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
