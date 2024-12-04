@@ -2,7 +2,7 @@ name: CI/CD Workflow
 
 on:
   workflow_call:
-     
+    
 env:
   PROJECT_PATH: '**/*.csproj'
   PACKAGE_OUTPUT_DIR: './bin/Release'
@@ -19,6 +19,9 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+
+    - name: List repository files
+      run: ls -R
 
     - name: Restore packages
       run: dotnet restore 
