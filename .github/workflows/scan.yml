@@ -58,5 +58,5 @@ jobs:
         run: $GITHUB_ACTION_PATH/script/check-quality-gate.sh "${{ inputs.scanMetadataReportFile }}/.sonarqube/out/.sonar/report-task.txt" "${{ inputs.pollingTimeoutSec }}"
         shell: bash
         env:
-          scanMetadataReportFile:
-          pollingTimeoutSec:
+          scanMetadataReportFile: ${{ inputs.scanMetadataReportFile }}
+          pollingTimeoutSec: ${{ inputs.pollingTimeoutSec }}
