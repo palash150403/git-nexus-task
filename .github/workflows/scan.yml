@@ -2,6 +2,9 @@ name: SonarQube Scan
 
 on:
   workflow_call:
+    secrets:
+      github_token:
+      sonar_token:
     inputs:
       github_token:
         required: true
