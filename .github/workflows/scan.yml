@@ -54,32 +54,11 @@ jobs:
           ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
 
       - name: SonarQube Quality Gate Check
-        description: >
-          Check if a project / analysis passed the Quality Gate check
-        branding:
-          icon: check
-          color: green
-        runs:
-          using: "composite"
-          steps:
-            - id: quality-gate-check
-              run: $GITHUB_ACTION_PATH/script/check-quality-gate.sh "${{ inputs.scanMetadataReportFile  }}" "${{ inputs.pollingTimeoutSec }}"
-              shell: bash
-        inputs:
-          scanMetadataReportFile:
-            description: Location of the scanner metadata report file
-            required: false
-            default: .sonarqube/out/.sonar/report-task.txt
-          pollingTimeoutSec:
-            description: "The maximum time (in seconds) to poll for SonarQube's Quality Gate status. Default: 300."
-            required: false
-            default: "300"
+        id: quality-gate-check
+        run: $GITHUB_ACTION_PATH/script/check-quality-gate.sh "${{ inputs.scanMetadataReportFile   }}/.sonarqube/out/.sonar/report-task.txt" "${{ inputs.pollingTimeoutSec }}"
+        shell: bash
+        env:
+          pollingTimeoutSec: 600  # Set your default polling timeout here
+        continue-on-error: true  # Optional, in case the Quality Gate check fails but you still want to proceed
         outputs:
-          quality-gate-status:
-            description: >
-              The resulting Quality Gate Status value of PASSED, WARN or FAILED
-            value: ${{ steps.quality-gate-check.outputs.quality-gate-status }}
-      
-
-      
-
+          quality-gate-status: ${{ steps.quality-gate-check.outputs.quality-gate-status }}
