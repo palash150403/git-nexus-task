@@ -18,15 +18,12 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
+    container: 
+      image: mcr.microsoft.com/dotnet/nightly/sdk:9.0
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: 8.0.x
 
     - name: Restore packages
       run: dotnet restore 
@@ -70,6 +67,8 @@ jobs:
         echo "PACKAGE_ID: $PACKAGE_ID"
         echo "PACKAGE_VERSION: $PACKAGE_VERSION"
 
+        
+
     - name: Pack packages
       run: |
         dotnet pack --no-restore --no-build --configuration Release --output ${{ env.PACKAGE_OUTPUT_DIR }} \
@@ -77,6 +76,8 @@ jobs:
           /p:PackageVersion=$PACKAGE_VERSION
         ARTIFACT_PATH="${{ env.PACKAGE_OUTPUT_DIR }}/${PACKAGE_ID}.${PACKAGE_VERSION}.nupkg"
         echo "ARTIFACT_PATH=${ARTIFACT_PATH}" >> $GITHUB_ENV
+        echo "Packaging completed. Artifact path: $ARTIFACT_PATH"
+
 
     - name: Upload Package as Artifact
       uses: actions/upload-artifact@v3
