@@ -60,5 +60,3 @@ jobs:
         env:
           pollingTimeoutSec: 600  # Set your default polling timeout here
         continue-on-error: true  # Optional, in case the Quality Gate check fails but you still want to proceed
-        outputs:
-          quality-gate-status: ${{ steps.quality-gate-check.outputs.quality-gate-status }}
