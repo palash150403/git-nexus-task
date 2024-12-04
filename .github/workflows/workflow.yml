@@ -33,6 +33,7 @@ jobs:
 
     - name: Set package name and version
       id: set_name
+      shell: bash
       run: |
         echo "Checking GITHUB_REF: $GITHUB_REF"
         FOLDER_NAME="helloworld"
