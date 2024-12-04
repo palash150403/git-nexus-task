@@ -55,7 +55,7 @@ jobs:
 
       - name: SonarQube Quality Gate Check
         id: quality-gate-check
-        run: $GITHUB_ACTION_PATH/script/check-quality-gate.sh "${{ inputs.scanMetadataReportFile   }}/.sonarqube/out/.sonar/report-task.txt" "${{ inputs.pollingTimeoutSec }}"
+        run: $GITHUB_ACTION_PATH/script/check-quality-gate.sh "${{ inputs.scanMetadataReportFile }}/.sonarqube/out/.sonar/report-task.txt" "${{ inputs.pollingTimeoutSec }}"
         shell: bash
         env:
           pollingTimeoutSec: 600  # Set your default polling timeout here
