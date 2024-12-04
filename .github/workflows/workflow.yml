@@ -17,9 +17,8 @@ env:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-    container: 
-      image: mcr.microsoft.com/dotnet/nightly/sdk:9.0
+    runs-on: self-hosted
+
 
     steps:
     - name: Checkout code
