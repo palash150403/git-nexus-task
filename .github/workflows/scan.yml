@@ -1,14 +1,5 @@
-name: CI/CD Workflow
-
 on:
   workflow_call:
-
-env:
-  PROJECT_PATH: '**/*.csproj'
-  PACKAGE_OUTPUT_DIR: './bin/Release'
-  PACKAGE_ID: ""
-  PACKAGE_VERSION: ""
-  ARTIFACT_PATH: ""
 
 jobs:
   sonarcloud:
@@ -17,59 +8,26 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Set up JDK 17
-      uses: actions/setup-java@v4
+    - name: SonaCloud Scan
+      id: sonar_scan
+      uses: ./.github/actions/ 
       with:
-        java-version: 17
-        distribution: 'zulu'
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        sonar_token: ${{ secrets.SONAR_TOKEN }}
 
-    - name: Checkout the code again (v4)
-      uses: actions/checkout@v4
+    - name: SonarQube Quality Gate check
+      id: sonarqube-quality-gate-check
+      uses: sonarsource/sonarqube-quality-gate-action@master
       with:
-        fetch-depth: 0
-
-    - name: Cache SonarQube Cloud packages
-      uses: actions/cache@v4
-      with:
-        path: ~/sonar/cache
-        key: ${{ runner.os }}-sonar
-        restore-keys: ${{ runner.os }}-sonar
-
-    - name: Cache SonarQube Cloud scanner
-      id: cache-sonar-scanner
-      uses: actions/cache@v4
-      with:
-        path: ./.sonar/scanner
-        key: ${{ runner.os }}-sonar-scanner
-        restore-keys: ${{ runner.os }}-sonar-scanner
-
-    - name: Install SonarQube Cloud scanner
-      if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
-      shell: bash
-      run: |
-        mkdir -p ./.sonar/scanner
-        dotnet tool update dotnet-sonarscanner --tool-path ./.sonar/scanner
-
-    - name: Build and analyze
+        pollingTimeoutSec: 600
+        scanMetadataReportFile: .sonarqube/out/.sonar/report-task.txt
       env:
-        GIT_TOKEN: ${{ env.GITHUB_TOKEN }}  
-        SONAR_TOKEN: ${{ env.SONAR_TOKEN }} 
-      shell: bash
-      run: |
-        ./.sonar/scanner/dotnet-sonarscanner begin /k:"palash150403_git-nexus-task" /o:"palash150403" /d:sonar.login="${{ env.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io"  
-        dotnet build
-        ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.login="${{ env.SONAR_TOKEN }}"
-
-    - name: SonarQube Quality Gate Check
-      id: quality-gate-check
-      run: $GITHUB_ACTION_PATH/script/check-quality-gate.sh "${{ inputs.scanMetadataReportFile }}" "${{ inputs.pollingTimeoutSec }}"
-      shell: bash
-      outputs:
-        quality-gate-status: ${{ steps.quality-gate-check.outputs.quality-gate-status }}
-
+       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        
+  
     - name: Assign Quality Gate Status to variable
       run: |
-        QUALITY_GATE_STATUS="${{ steps.quality-gate-check.outputs.quality-gate-status }}"
+        QUALITY_GATE_STATUS="${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}"
         echo "QUALITY_GATE_STATUS=${QUALITY_GATE_STATUS}" >> $GITHUB_ENV
         echo "The Quality Gate status is $QUALITY_GATE_STATUS"
 
@@ -78,9 +36,9 @@ jobs:
         if [[ "${QUALITY_GATE_STATUS}" != "PASSED" ]]; then
           echo "Quality Gate failed with status: $QUALITY_GATE_STATUS"
           exit 1  
-        else:
+        else
           echo "Quality Gate passed with status: $QUALITY_GATE_STATUS"
         fi
-
-    - name: Example show SonarQube Quality Gate Status value
+ 
+    - name: "Example show SonarQube Quality Gate Status value"
       run: echo "The Quality Gate status is $QUALITY_GATE_STATUS"
