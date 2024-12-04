@@ -90,6 +90,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
     - name: SonaCloud Scan
       id: sonar_scan
       uses: ./.github/actions/ 
