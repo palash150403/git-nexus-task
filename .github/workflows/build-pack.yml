@@ -87,3 +87,12 @@ jobs:
 
     - name: List files in Release directory
       run: ls -al ./bin/Release
+
+    - name: Download Package Artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: nuget-package
+        path: ./bin/Release
+
+    - name: List files in Release directory
+      run: ls -al
