@@ -73,29 +73,6 @@ jobs:
           ceTaskUrl=$(grep -oP '(?<=ceTaskUrl=).*' "$reportTaskFile")
           echo "Computed ceTaskUrl: $ceTaskUrl"
 
-          # Polling for task completion
-          echo "Polling SonarQube task for completion..."
-          timeout=600  # Maximum wait time (10 minutes)
-          interval=10  # Polling interval (10 seconds)
-          elapsed=0
-          status="PENDING"
-          while [ "$status" != "SUCCESS" ] && [ "$elapsed" -lt "$timeout" ]; do
-            response=$(curl -s -u "$SONAR_TOKEN:" "$ceTaskUrl")
-            status=$(echo "$response" | jq -r '.task.status')
-            echo "Task status: $status"
-            if [ "$status" == "FAILED" ]; then
-              echo "SonarQube task failed!"
-              exit 1
-            fi
-            sleep "$interval"
-            elapsed=$((elapsed + interval))
-          done
-
-          if [ "$status" != "SUCCESS" ]; then
-            echo "SonarQube task did not complete within the timeout."
-            exit 1
-          fi
-
           # Extract analysisId from task response
           analysisId=$(echo "$response" | jq -r '.task.analysisId')
           echo "Analysis ID: $analysisId"
