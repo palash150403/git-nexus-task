@@ -36,7 +36,7 @@ jobs:
       uses: actions/download-artifact@v3
 
     - name: List files in Release directory
-      run: ls -al ./bin/Release
+      run: ls -al 
 
     - name: Push to Nexus Repository
       env:
