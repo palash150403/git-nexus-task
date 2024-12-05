@@ -80,7 +80,10 @@ jobs:
 
 
     - name: Upload Package as Artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v
       with:
         name: nuget-package
         path: ${{ env.ARTIFACT_PATH }}
+
+    - name: List files in Release directory
+      run: ls -al ./bin/Release
