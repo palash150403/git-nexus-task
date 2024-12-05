@@ -7,12 +7,7 @@ on:
         required: true
       SONAR_TOKEN:
         required: true
-    inputs:
-      pollingTimeoutSec:
-        required: true
-        type: number
-      scanMetadataReportFile:
-        type: string
+    
 
 jobs:
   sonarcloud:
@@ -60,6 +55,6 @@ jobs:
           ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
 
       - name: quality gate status
-        run: $GITHUB_ACTION_PATH/script/check-quality-gate.sh "${{ inputs.scanMetadataReportFile  }}" "${{ inputs.pollingTimeoutSec }}"
+        run: $GITHUB_ACTION_PATH/script/check-quality-gate.sh ".sonarqube/out/.sonar/report-task.txt" "600"
         
 
