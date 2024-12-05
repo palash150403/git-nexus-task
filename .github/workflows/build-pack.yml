@@ -95,4 +95,4 @@ jobs:
         path: ./bin/Release
 
     - name: List files in Release directory
-      run: ls -al
+      run: ls -al ./bin/Release
