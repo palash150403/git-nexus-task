@@ -57,4 +57,42 @@ jobs:
       - name: quality gate status
         run: $GITHUB_ACTION_PATH/script/check-quality-gate.sh ".sonarqube/out/.sonar/report-task.txt" "600"
         
+      - name: Check SonarQube Quality Gate Status
+        shell: bash
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          reportTaskFile=".sonarqube/out/.sonar/report-task.txt"
+          if [ ! -f "$reportTaskFile" ]; then
+            echo "SonarQube report task file not found."
+            exit 1
+          fi
+          
+          ceTaskUrl=$(grep -oP '(?<=ceTaskId=).*' "$reportTaskFile" | xargs -I{} echo "https://sonarcloud.io/api/ce/task?id={}")
+          
+          echo "Polling SonarQube for Quality Gate status..."
+          timeout=300  # Maximum wait time in seconds
+          interval=10  # Polling interval in seconds
+          elapsed=0
+          status="IN_PROGRESS"
+          while [ "$status" == "IN_PROGRESS" ] && [ "$elapsed" -lt "$timeout" ]; do
+            response=$(curl -s -u "$SONAR_TOKEN:" "$ceTaskUrl")
+            status=$(echo "$response" | jq -r '.status')
+            gateStatus=$(echo "$response" | jq -r '.analysisStatus' || echo "UNKNOWN")
+            if [ "$status" == "SUCCESS" ]; then
+              echo "Quality Gate Status: $gateStatus"
+              if [ "$gateStatus" == "OK" ]; then
+                echo "Quality Gate passed!"
+                exit 0
+              else
+                echo "Quality Gate failed!"
+                exit 1
+              fi
+            fi
+            sleep "$interval"
+            elapsed=$((elapsed + interval))
+          done
 
+          # If we reach here, the status is still not ready
+          echo "Quality Gate status check timed out after $timeout seconds."
+          exit 1
