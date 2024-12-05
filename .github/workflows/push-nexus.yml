@@ -28,6 +28,9 @@ jobs:
     if: github.ref_name == 'develop' || github.ref_name == 'release' || startsWith(github.ref, 'refs/tags/')
     environment: ${{ startsWith(github.ref, 'refs/tags/') && 'Approval' || null }}
     steps:
+    
+    - name: List files in Release directory
+      run: ls -al ./bin/Release
     - name: Download Package Artifact
       uses: actions/download-artifact@v3
       with:
