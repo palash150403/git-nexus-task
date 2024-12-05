@@ -23,7 +23,8 @@ on:
     
 
 jobs:
-  runs-on: ubuntu-latest
+  push_to_nexus:
+    runs-on: ubuntu-latest
     if: github.ref_name == 'develop' || github.ref_name == 'release' || startsWith(github.ref, 'refs/tags/')
     environment: ${{ startsWith(github.ref, 'refs/tags/') && 'Approval' || null }}
     steps:
@@ -59,4 +60,5 @@ jobs:
         fi
         echo "Pushing to Nexus repository: $NEXUS_SOURCE"
         dotnet nuget push ./bin/Release/*.nupkg --source $NEXUS_SOURCE --api-key $NEXUS_API_KEY
- 
+
+
