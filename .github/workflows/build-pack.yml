@@ -1,8 +1,13 @@
 name: CI/CD Workflow
 
 on:
-  workflow_call:
-    
+  push:
+    branches:
+      - develop
+      - release
+    tags:
+      - '*'
+
 env:
   PROJECT_PATH: '**/*.csproj'
   PACKAGE_OUTPUT_DIR: './bin/Release'
@@ -20,9 +25,6 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: List repository files
-      run: ls -R
-
     - name: Restore packages
       run: dotnet restore 
 
@@ -34,7 +36,7 @@ jobs:
       shell: bash
       run: |
         echo "Checking GITHUB_REF: $GITHUB_REF"
-        git config --global --add safe.directory /__w/composite-action/composite-action
+        git config --global --add safe.directory /__w/git-nexus-task/git-nexus-task
         FOLDER_NAME="helloworld"
 
         if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
@@ -84,6 +86,9 @@ jobs:
       with:
         name: nuget-package
         path: ${{ env.ARTIFACT_PATH }}
-
-    - name: List files in Release directory
+    
+    - name: list in bin release
       run: ls -al ./bin/Release
+
+    - name: list in artifact
+      run: ls -al ${{ env.ARTIFACT_PATH }}
