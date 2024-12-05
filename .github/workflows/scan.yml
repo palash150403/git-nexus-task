@@ -53,10 +53,7 @@ jobs:
           dotnet build
           ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
 
-      - name: SonarQube Quality Gate Check
-        id: quality-gate-check
-        run: $GITHUB_ACTION_PATH/script/check-quality-gate.sh "${{ inputs.scanMetadataReportFile }}/.sonarqube/out/.sonar/report-task.txt" "${{ inputs.pollingTimeoutSec }}"
-        shell: bash
-        env:
-          scanMetadataReportFile: ${{ inputs.scanMetadataReportFile }}
-          pollingTimeoutSec: ${{ inputs.pollingTimeoutSec }}
+      - name: quality gate status
+        run: $GITHUB_ACTION_PATH/script/check-quality-gate.sh "${{ inputs.scanMetadataReportFile  }}" "${{ inputs.pollingTimeoutSec }}"
+        
+

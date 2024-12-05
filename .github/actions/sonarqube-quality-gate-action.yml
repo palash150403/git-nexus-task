@@ -1,9 +1,4 @@
 name: SonarQube Quality Gate Check
-description: >
-  Check if a project / analysis passed the Quality Gate check
-branding:
-  icon: check
-  color: green
 runs:
   using: "composite"
   steps:
@@ -12,11 +7,9 @@ runs:
       shell: bash
 inputs:
   scanMetadataReportFile:
-    description: Location of the scanner metadata report file
     required: false
     default: .sonarqube/out/.sonar/report-task.txt
   pollingTimeoutSec:
-    description: "The maximum time (in seconds) to poll for SonarQube's Quality Gate status. Default: 300."
     required: false
     default: "300"
 outputs:
