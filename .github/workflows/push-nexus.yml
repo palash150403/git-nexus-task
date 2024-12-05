@@ -30,13 +30,12 @@ jobs:
     steps:
     
     - name: List files in Release directory
-      run: ls -al ./bin/Release
-      
+      run: ls -al 
+
     - name: Download Package Artifact
       uses: actions/download-artifact@v3
       with:
         name: nuget-package
-        path: ./bin/Release
 
     - name: List files in Release directory
       run: ls -al ./bin/Release
@@ -63,7 +62,7 @@ jobs:
           exit 1
         fi
         echo "Pushing to Nexus repository: $NEXUS_SOURCE"
-        dotnet nuget push ./bin/Release/*.nupkg --source $NEXUS_SOURCE --api-key ${{ secrets.NEXUS_API_KEY }}
+        dotnet nuget push ./*.nupkg --source $NEXUS_SOURCE --api-key ${{ secrets.NEXUS_API_KEY }}
 
 
 
