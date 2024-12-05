@@ -7,6 +7,12 @@ on:
         required: true
       SONAR_TOKEN:
         required: true
+    inputs:
+      pollingTimeoutSec:
+        required: true
+        type: number
+      scanMetadataReportFile:
+        type: string
 
 jobs:
   sonarcloud:
