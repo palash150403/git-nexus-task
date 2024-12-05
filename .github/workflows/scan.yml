@@ -53,6 +53,10 @@ jobs:
           ./.sonar/scanner/dotnet-sonarscanner begin /k:"palash150403_composite-actions" /o:"palash150403" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io"
           dotnet build
           ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+
+      - name: Install jq
+        run: sudo apt-get install -y jq
+
  
       - name: Check SonarQube Quality Gate Status
         shell: bash
@@ -65,15 +69,24 @@ jobs:
             exit 1
           fi
           
+          # Debugging: Print report-task.txt content
+          echo "Content of $reportTaskFile:"
+          cat "$reportTaskFile"
+          
           ceTaskUrl=$(grep -oP '(?<=ceTaskId=).*' "$reportTaskFile" | xargs -I{} echo "https://sonarcloud.io/api/ce/task?id={}")
+          echo "Computed ceTaskUrl: $ceTaskUrl"
           
           echo "Polling SonarQube for Quality Gate status..."
-          timeout=300  # Maximum wait time in seconds
+          timeout=600  # Increased wait time to 10 minutes
           interval=10  # Polling interval in seconds
           elapsed=0
           status="IN_PROGRESS"
           while [ "$status" == "IN_PROGRESS" ] && [ "$elapsed" -lt "$timeout" ]; do
             response=$(curl -s -u "$SONAR_TOKEN:" "$ceTaskUrl")
+            
+            # Debugging: Print API response
+            echo "API Response: $response"
+            
             status=$(echo "$response" | jq -r '.status')
             gateStatus=$(echo "$response" | jq -r '.analysisStatus' || echo "UNKNOWN")
             if [ "$status" == "SUCCESS" ]; then
@@ -90,6 +103,5 @@ jobs:
             elapsed=$((elapsed + interval))
           done
 
-          # If we reach here, the status is still not ready
           echo "Quality Gate status check timed out after $timeout seconds."
           exit 1
