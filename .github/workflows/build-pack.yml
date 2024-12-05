@@ -80,7 +80,7 @@ jobs:
 
 
     - name: Upload Package as Artifact
-      uses: actions/upload-artifact@v
+      uses: actions/upload-artifact@v3
       with:
         name: nuget-package
         path: ${{ env.ARTIFACT_PATH }}
