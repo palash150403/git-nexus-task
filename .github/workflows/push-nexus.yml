@@ -1,0 +1,65 @@
+name: push_to_nexus
+
+on:
+  workflow_call:
+    secrets:
+      NEXUS_USERNAME:
+        required: true
+      NEXUS_PASSWORD:
+        required: true
+      NEXUS_API_KEY:
+        required: true
+    inputs:
+      NEXUS_URL_DEVELOP:
+        required: true
+        type: string
+      NEXUS_URL_MAIN:
+        required: true
+        type: string
+      NEXUS_URL_RELEASE:
+        required: true
+        type: string
+
+    
+
+jobs:
+  push_to_nexus:
+    runs-on: ubuntu-latest
+    if: github.ref_name == 'develop' || github.ref_name == 'release' || startsWith(github.ref, 'refs/tags/')
+    environment: ${{ startsWith(github.ref, 'refs/tags/') && 'Approval' || null }}
+    steps:
+    - name: Download Package Artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: nuget-package
+        path: ./bin/Release
+
+    - name: List files in Release directory
+      run: ls -al ./bin/Release
+
+    - name: Push to Nexus Repository
+      env:
+        NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }} 
+        NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
+        NEXUS_API_KEY: ${{ secrets.NEXUS_API_KEY }}
+        NEXUS_URL_DEVELOP: ${{ inputs.NEXUS_URL_DEVELOP }}
+        NEXUS_URL_MAIN: ${{ inputs.NEXUS_URL_MAIN }}
+        NEXUS_URL_RELEASE: ${{ inputs.NEXUS_URL_RELEASE }}
+
+
+      run: |
+        if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+          NEXUS_SOURCE=${{ inputs.NEXUS_URL_MAIN }}
+        elif [[ "${GITHUB_REF}" == "refs/heads/develop" ]]; then
+          NEXUS_SOURCE="${{ inputs.NEXUS_URL_DEVELOP }}"
+        elif [[ "${GITHUB_REF}" == "refs/heads/release" ]]; then
+          NEXUS_SOURCE="${{ inputs.NEXUS_URL_RELEASE }}"
+        else
+          echo "Error: Unsupported branch/tag for Nexus deployment."
+          exit 1
+        fi
+        echo "Pushing to Nexus repository: $NEXUS_SOURCE"
+        dotnet nuget push ./bin/Release/*.nupkg --source $NEXUS_SOURCE --api-key ${{ secrets.NEXUS_API_KEY }}
+
+
+
