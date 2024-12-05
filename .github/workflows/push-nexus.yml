@@ -28,9 +28,12 @@ jobs:
     if: github.ref_name == 'develop' || github.ref_name == 'release' || startsWith(github.ref, 'refs/tags/')
     environment: ${{ startsWith(github.ref, 'refs/tags/') && 'Approval' || null }}
     steps:
-    
+    - name: List files in Release directory
+      run: ls -al 
+
     - name: List files in Release directory
       run: ls -al ./bin/Release
+
     - name: Download Package Artifact
       uses: actions/download-artifact@v3
       with:
@@ -38,7 +41,7 @@ jobs:
         path: ./bin/Release
 
     - name: List files in Release directory
-      run: ls -al 
+      run: ls -al ./bin/Release
 
     - name: Push to Nexus Repository
       env:
@@ -62,7 +65,7 @@ jobs:
           exit 1
         fi
         echo "Pushing to Nexus repository: $NEXUS_SOURCE"
-        dotnet nuget push .*.nupkg --source $NEXUS_SOURCE --api-key ${{ secrets.NEXUS_API_KEY }}
+        dotnet nuget push ./bin/Release/*.nupkg --source $NEXUS_SOURCE --api-key ${{ secrets.NEXUS_API_KEY }}
 
 
 
